@@ -1,0 +1,40 @@
+.contact-form {
+    max-width: 200px; /* Maksimalna širina forme (50-60% stranice) */
+    width: 40%;       /* Širina prilagodljiva manjim ekranima */
+    margin: 0 auto;   /* Centriraj na stranici */
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;      /* Polja unutar forme popunjavaju prostor */
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.contact-form button {
+    width: auto;      /* Gumb ima vlastitu širinu */
+    margin: 0 auto;
+    display: block;   /* Centriraj gumb */
+}
+
+
+@media (max-width: 768px) {
+    .logo {
+        max-width: 120px; /* Smanji logotip za manje ekrane */
+    }
+
+    .search-bar input,
+    .search-bar select {
+        width: 90%; /* Širina za mobilne uređaje */
+    }
+
+    .contact-form {
+        width: 90%; /* Forma popunjava većinu prostora na malim ekranima */
+    }
+}
