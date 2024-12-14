@@ -12,7 +12,7 @@ const Register = () => {
         dob: ''
     });
 
-    const [error, setError] = useState('');
+    const [message, setMessage] = useState({ text: '', type: '' });  // Stanje za obavijest
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -22,41 +22,52 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Provjera svih unosa
         if (formData.password !== formData.confirmPassword) {
-            setError('Lozinke se ne podudaraju.');
+            setMessage({ text: 'Lozinke se ne podudaraju.', type: 'error' });
             return;
         }
 
-        if (!formData.username.includes('@')) {
-            setError('Molimo unesite ispravan email.');
-            return;
+        try {
+            const response = await fetch('http://localhost:5005/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                setMessage({ text: 'Uspješna registracija!', type: 'success' });
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    username: '',
+                    password: '',
+                    confirmPassword: '',
+                    oib: '',
+                    dob: ''
+                });
+            } else {
+                const message = await response.text();
+                setMessage({ text: message, type: 'error' });
+            }
+        } catch (err) {
+            setMessage({ text: 'Greška pri registraciji.', type: 'error' });
+            console.error(err);
         }
-
-        // Ovdje možeš dodati provjeru OIB-a, datuma rođenja itd.
-        // Ako je sve u redu, pošaljemo podatke
-        setError('');
-        console.log('Registracija uspješna:', formData);
-
-        // Resetiraj formu nakon uspješne registracije
-        setFormData({
-            firstName: '',
-            lastName: '',
-            username: '',
-            password: '',
-            confirmPassword: '',
-            oib: '',
-            dob: ''
-        });
     };
 
     return (
         <div className="register-container">
             <h2>Registracija</h2>
-            {error && <div className="error-message">{error}</div>}
+            {message.text && (
+                <div className={`message ${message.type}`}>
+                    {message.text}
+                </div>
+            )}
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="firstName">Ime</label>

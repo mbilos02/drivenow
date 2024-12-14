@@ -1,14 +1,42 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({ username: '', password: '' }); // Stanje za greške
+    const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // API login
-        console.log('User logged in:', { email, password });
+        setErrors({ username: '', password: '' }); // Resetiranje grešaka prije svakog pokušaja prijave
+
+        try {
+            const response = await fetch('http://localhost:5005/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    setErrors(prev => ({ ...prev, username: 'Pogrešno korisničko ime ili lozinka.' }));
+                } else {
+                    setErrors(prev => ({ ...prev, username: 'Greška prilikom prijave. Pokušajte ponovo.' }));
+                }
+                return;
+            }
+
+            const data = await response.json();
+            localStorage.setItem('authToken', data.token); // Spremanje tokena u localStorage
+            navigate('/'); // Preusmjeri na početnu stranicu
+        } catch (error) {
+            console.error('Tehnički detalji greške:', error);
+            setErrors(prev => ({ ...prev, username: 'Nije moguće povezati se s poslužiteljem. Provjerite internetsku vezu.' }));
+        }
     };
 
     return (
@@ -23,11 +51,12 @@ const Login = () => {
                             type="email"
                             id="email"
                             name="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             required
                             placeholder="Unesite vaš e-mail"
                         />
+                        
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Lozinka</label>
@@ -40,6 +69,8 @@ const Login = () => {
                             required
                             placeholder="Unesite vašu lozinku"
                         />
+                        {<p className="error-text" style={{color: 'red'}}>{errors.username}</p>}
+                        {<p className="error-text" style={{color: 'red'}}>{errors.password}</p>}
                     </div>
                     <button type="submit" className="login-btn">Prijavite se</button>
                 </form>
